@@ -103,3 +103,26 @@ docker image push docker.io/jjasonek/gatewayserver:s14
 ### Run docker compose:
 docker-compose up -d
 
+
+## Testing with docker compose
+
+### logs from accounts:
+2025-07-12T22:34:12.590Z  INFO [accounts,4b7c798f4bd2e6250e0a4bb90191612c,e383b607b00c4b6a] 1 --- [accounts] [nio-8080-exec-7] o.s.c.s.m.DirectWithAttributesChannel    : Channel 'accounts.sendCommunication-out-0' has 1 subscriber(s).
+2025-07-12T22:34:12.591Z  INFO [accounts,4b7c798f4bd2e6250e0a4bb90191612c,e383b607b00c4b6a] 1 --- [accounts] [nio-8080-exec-7] o.s.c.s.binder.kafka.KafkaBinderMetrics  : Try to shutdown the old scheduler with 1 threads
+2025-07-12T22:34:12.596Z  WARN [accounts,4b7c798f4bd2e6250e0a4bb90191612c,e383b607b00c4b6a] 1 --- [accounts] [nio-8080-exec-7] i.m.core.instrument.MeterRegistry        : This Gauge has been already registered (MeterId{name='spring.cloud.stream.binder.kafka.offset', tags=[tag(application=accounts),tag(group=accounts),tag(topic=communication-sent)]}), the registration will be ignored. Note that subsequent logs will be logged at debug level.
+2025-07-12T22:34:13.933Z  INFO [accounts,,] 1 --- [accounts] [pool-9-thread-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-accounts-3, groupId=accounts] Found no committed offset for partition communication-sent-0
+2025-07-12T22:34:13.939Z  INFO [accounts,1dc08cd96213fff175086aac769f9c24,7ba3733d75f85570] 1 --- [accounts] [pool-9-thread-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-accounts-3, groupId=accounts] Found no committed offset for partition communication-sent-0
+2025-07-12T22:34:13.974Z  INFO [accounts,4b7c798f4bd2e6250e0a4bb90191612c,e383b607b00c4b6a] 1 --- [accounts] [nio-8080-exec-7] c.e.a.service.impl.AccountServiceImpl    : Is the communication request successfully triggered? : true
+2025-07-12T22:34:14.743Z  INFO [accounts,4b7c798f4bd2e6250e0a4bb90191612c,1cfb37a6b2371f11] 1 --- [accounts] [container-0-C-1] c.e.accounts.functions.AccountFunctions  : Updating communication status for the account number: 1647021729
+Hibernate: select a1_0.account_number,a1_0.account_type,a1_0.branch_address,a1_0.communication_sw,a1_0.created_at,a1_0.created_by,a1_0.customer_id,a1_0.updated_at,a1_0.updated_by from accounts a1_0 where a1_0.account_number=?
+Hibernate: select a1_0.account_number,a1_0.account_type,a1_0.branch_address,a1_0.communication_sw,a1_0.created_at,a1_0.created_by,a1_0.customer_id,a1_0.updated_at,a1_0.updated_by from accounts a1_0 where a1_0.account_number=?
+Hibernate: update accounts set account_type=?,branch_address=?,communication_sw=?,customer_id=?,updated_at=?,updated_by=? where account_number=?
+
+### logs from message:
+2025-07-12T22:25:25.379Z  INFO 1 --- [message] [container-0-C-1] o.a.k.c.c.internals.SubscriptionState    : [Consumer clientId=consumer-message-2, groupId=message] Resetting offset for partition send-communication-0 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[kafka:9092 (id: 1 rack: null)], epoch=0}}.
+2025-07-12T22:25:25.381Z  INFO 1 --- [message] [container-0-C-1] o.s.c.s.b.k.KafkaMessageChannelBinder$2  : message: partitions assigned: [send-communication-0]
+2025-07-12T22:34:14.621Z  INFO 1 --- [message] [container-0-C-1] c.e.message.functions.MessageFunctions   : Sending email with the details : AccountsMsgDto[accountNumber=1647021729, name=Madan Reddy, email=tutor@eazybytes, mobileNumber=4354437688]
+2025-07-12T22:34:14.628Z  INFO 1 --- [message] [container-0-C-1] c.e.message.functions.MessageFunctions   : Sending sms with the details : AccountsMsgDto[accountNumber=1647021729, name=Madan Reddy, email=tutor@eazybytes, mobileNumber=4354437688]
+2025-07-12T22:34:22.799Z  INFO 1 --- [message] [container-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-message-2, groupId=message] Node -1 disconnected.
+2025-07-12T22:34:44.739Z  INFO 1 --- [message] [ad | producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=producer-1] Node -1 disconnected.
+
