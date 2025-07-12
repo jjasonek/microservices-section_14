@@ -14,9 +14,7 @@ spring:
           group: ${spring.application.name}   # we don't wont RabbitMQ to append some random values to our channel, destination and queue name.
         email|sms-out-0:  # Binding name following our convention: out as output, 0 as starting index.
           destination: communication-sent   # Exchange name
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
-    connection-timeout: 10s
+      kafka:
+        binder:
+          brokers:
+            - localhost:9092  # For now, we have only one broker

@@ -33,12 +33,10 @@ spring:
           group: ${spring.application.name}
         sendCommunication-out-0:  # Binding name following our convention: out as output, 0 as starting index.
           destination: send-communication   # Exchange name
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
-    connection-timeout: 10s
+      kafka:
+        binder:
+          brokers:
+            - localhost:9092  # For now, we have only one broker
 
 management:   # to see in browser http://localhost:8080/actuator
   endpoints:
