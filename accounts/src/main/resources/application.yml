@@ -1,0 +1,120 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: accounts
+  profiles:
+    active: "prod"  # Default setting. This can also be set by the Configserver.
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ''
+  h2:
+    console:
+      enabled: true   # to see in browser http://localhost:8080/h2-console
+  jpa:
+    hibernate:
+      database-platform: org.hibernate.dialect.H2Dialect
+      ddl-auto: update
+    show-sql: true
+  config:
+    import: "optional:configserver:http://localhost:8071"
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+    function:
+      definition: updateCommunication   # it is possible define mor functions separated by ';'
+    stream:
+      bindings:
+        updateCommunication-in-0:
+          destination: communication-sent   # Queue name
+          group: ${spring.application.name}
+        sendCommunication-out-0:  # Binding name following our convention: out as output, 0 as starting index.
+          destination: send-communication   # Exchange name
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    connection-timeout: 10s
+
+management:   # to see in browser http://localhost:8080/actuator
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  health:
+    readinessstate:
+      enabled: true
+    livenessstate:
+      enabled: true
+  endpoint:
+    shutdown:
+      enabled: true  # Enabled is deprecated. It is replaced by restricted.
+    health:
+      probes:
+        enabled: true
+  info:
+    env:
+      enabled: true
+  metrics: # group the metrics under application name accounts
+    tags:
+      application: ${spring.application.name}
+
+# this allows the app to be shutdown remotely by hitting http://localhost:8080/actuator/shutdown
+# This setting is no more needed.
+endpoints:
+  shutdown:
+    enabled: true
+
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    fetchRegistry: true
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: http://localhost:8070/eureka/
+
+info:   # info for Eureka Dashboard, which is exposed as actuator endpoint, which we are allowing by management.info.env.enabled
+  app:
+    name: "accounts"
+    description: "Eazy Bank Accounts Application"
+    version: "1.0.0"
+
+logging:
+  level:
+    com:
+      eazybytes:
+        accounts: DEBUG
+  pattern:
+    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"
+
+resilience4j.circuitbreaker:
+  configs:
+    default:
+      sliding-window-size: 10     # slidingWindowSize is also allowed
+      permittedNumberOfCallsInHalfOpenState: 2
+      failureRateThreshold: 50
+      waitDurationInOpenState: 10000
+
+resilience4j.retry:
+  configs:
+    default:  # can be for instance "getBuildInfo", like name parameter in @Retry
+      maxAttempts: 3  # renamed from maxRetryAttempts
+      waitDuration: 500
+      enableExponentialBackoff: true
+      exponentialBackoffMultiplier: 2
+      ignoreExceptions:
+        - java.lang.NullPointerException  # do not retry on NullPointerException
+      retryExceptions:
+        - java.util.concurrent.TimeoutException    # retry only when TimeoutException is thrown. This makes ignoreExceptions not used.
+
+resilience4j.ratelimiter:
+  configs:
+    default:    # for alli rate limiters in the service
+      timeoutDuration: 1000   # 1 second. Maximum time for thread to wait for a new quota.
+      limitRefreshPeriod: 5000    # renew the quota every 5 seconds
+      limitForPeriod: 1     # the quota
