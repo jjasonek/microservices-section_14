@@ -84,6 +84,7 @@ send-communication: 1
 
 ### for all microservices we call following to generate docker images s14:
 mvn compile jib:dockerBuild
+or .\RunMvnCommandForAllProjects.ps1 -MavenCommand "compile jib:dockerBuild"
 
 docker image ls --filter=reference="jjasonek/*:s14"
 

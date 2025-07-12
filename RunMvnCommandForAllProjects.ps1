@@ -1,4 +1,7 @@
-# Define the list of subfolders
+param(
+    [string]$MavenCommand = "clean"
+)
+
 $subfolders = @(
     "accounts",
     "cards",
@@ -9,9 +12,6 @@ $subfolders = @(
     "message"
 )
 
-
-
-# Get the current directory
 $basePath = Get-Location
 
 foreach ($folder in $subfolders) {
@@ -19,9 +19,12 @@ foreach ($folder in $subfolders) {
     $pomPath = Join-Path $fullPath "pom.xml"
 
     if (Test-Path $pomPath) {
-        Write-Host "`nRunning 'mvn clean' in $folder..." -ForegroundColor Cyan
+        Write-Host "`nExecuting 'mvn $MavenCommand' in '$folder'..." -ForegroundColor Cyan
         Push-Location $fullPath
-        mvn clean
+
+        # Properly run mvn with multiple goals
+        Invoke-Expression "mvn $MavenCommand"
+
         Pop-Location
     } else {
         Write-Warning "Skipped '$folder' - pom.xml not found."
