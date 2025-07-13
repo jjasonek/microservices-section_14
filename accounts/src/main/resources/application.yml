@@ -28,11 +28,11 @@ spring:
       definition: updateCommunication   # it is possible define mor functions separated by ';'
     stream:
       bindings:
-        updateCommunication-in-0:
-          destination: communication-sent   # Queue name
+        updateCommunication-in-0:     # In from broker
+          destination: communication-sent   # Queue name (RabbitMQ) / Topic name (Kafka)
           group: ${spring.application.name}
-        sendCommunication-out-0:  # Binding name following our convention: out as output, 0 as starting index.
-          destination: send-communication   # Exchange name
+        sendCommunication-out-0:  # Binding name following our convention: out(to broker) as output, 0 as starting index.
+          destination: send-communication   # Exchange name (RabbitMQ) / Topic name (Kafka)
       kafka:
         binder:
           brokers:
